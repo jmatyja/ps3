@@ -27,6 +27,7 @@
     "start": "concurrent --kill-others \"npm run start-prod\" \"npm run start-prod-api\"",
     "start-prod": "better-npm-run start-prod",
     "start-prod-api": "better-npm-run start-prod-api",
+    "start-prod-fut": "better-npm-run start-prod-fut",
     "build": "better-npm-run build",
     "postinstall": "npm run build",
     "lint": "eslint -c .eslintrc src api",
@@ -55,6 +56,13 @@
         "NODE_PATH": "./api",
         "NODE_ENV": "production",
         "APIPORT": 3030
+      }
+    },
+     "start-prod-fut": {
+      "command": "node ./bin/fut.js",
+      "env": {
+        "NODE_PATH": "./fut",
+        "NODE_ENV": "production"
       }
     },
     "start-dev": {
