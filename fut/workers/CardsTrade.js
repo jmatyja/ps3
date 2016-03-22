@@ -1,9 +1,10 @@
 import Cards from './abstract/Cards';
 import connectToWebApp from '../connector';
+import * as cardsTradeActions from '../redux/modules/cardsTrade';
 import setMarketData from '../market';
-import * as cardsInfoActions from '../redux/modules/cardsInfo';
 import { bindActionCreators } from 'redux'
 import moment from 'moment';
+
 
 //time intervals are in seconds
 const SEARCH_INTERVAL = 15;
@@ -16,9 +17,9 @@ let storeCurrentValue;
 
 class _CardsInfo extends Cards {
   constructor(config, store) {
-    super('cardsInfo', store);
+    super('cardsTrade', store);
     this.config = config;
-    this.actions = bindActionCreators(cardsInfoActions, this.store.dispatch);
+    this.actions = bindActionCreators(cardsTradeActions, this.store.dispatch);
   }
 
   get id() {
@@ -27,7 +28,12 @@ class _CardsInfo extends Cards {
 
   tick() {
     return !this.checkLogin()
+      || !this.checkTradingCards()
       || !this.checkSearch();
+  }
+
+  checkTradingCards() {
+    return true;
   }
 
   handleStoreChange() {

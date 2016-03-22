@@ -18,7 +18,7 @@ let accountConfig = {
   host: 'utas.s2.fut.ea.com',
   type: 'cardsinfo',
   id: 'firstaccount',
-  minBuyNowSearch: 5000
+  minBuyNowSearch: 1000
 };
 const client = new MarketClient();
 const mysqlClient = new MysqlDbClient();

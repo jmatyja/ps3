@@ -1,9 +1,9 @@
 const LOGIN = 'connector/LOGIN';
-const LOGIN_SUCCESS = 'collect-cards-info/LOGIN_SUCCESS';
-const LOGIN_FAIL = 'collect-cards-info/LOGIN_FAIL';
-const SERVER_DATA = 'collect-cards-info/SERVER_DATA';
-const SERVER_DATA_SUCCESS = 'collect-cards-info/SERVER_SUCCESS';
-const SERVER_DATA_FAIL = 'collect-cards-info/SERVER_FAIL';
+const LOGIN_SUCCESS = 'connector/LOGIN_SUCCESS';
+const LOGIN_FAIL = 'connector/LOGIN_FAIL';
+const SERVER_DATA = 'connector/SERVER_DATA';
+const SERVER_DATA_SUCCESS = 'connector/SERVER_SUCCESS';
+const SERVER_DATA_FAIL = 'connector/SERVER_FAIL';
 const initialState = {
 };
 

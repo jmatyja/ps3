@@ -1,9 +1,9 @@
-const GET = 'collect-cards-info/GET';
-const GET_SUCCESS = 'collect-cards-info/GET_SUCCESS';
-const GET_FAIL = 'collect-cards-info/GET_FAIL';
-const ADD_AUCTIONS = 'collect-cards-info/ADD_AUCTIONS';
-const ADD_AUCTIONS_SUCCESS = 'collect-cards-info/ADD_AUCTIONS_SUCCESS';
-const ADD_AUCTIONS_FAIL = 'collect-cards-info/ADD_AUCTIONS_FAIL';
+const GET = 'cards-info/GET';
+const GET_SUCCESS = 'cards-info/GET_SUCCESS';
+const GET_FAIL = 'cards-info/GET_FAIL';
+const ADD_AUCTIONS = 'cards-info/ADD_AUCTIONS';
+const ADD_AUCTIONS_SUCCESS = 'cards-info/ADD_AUCTIONS_SUCCESS';
+const ADD_AUCTIONS_FAIL = 'cards-info/ADD_AUCTIONS_FAIL';
 const initialState = {
 };
 
