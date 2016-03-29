@@ -1,8 +1,6 @@
 import Cards from './abstract/Cards';
-import connectToWebApp from '../connector';
 import * as cardsTradeActions from '../redux/modules/cardsTrade';
-import setMarketData from '../market';
-import { bindActionCreators } from 'redux'
+import { bindActionCreators } from 'redux';
 import moment from 'moment';
 
 
@@ -11,11 +9,10 @@ const SEARCH_INTERVAL = 15;
 const CARDS_NUMBERS_PER_SEARCH = 50;
 const SEARCH_CARD_LEV = 'gold';
 const SEARCH_CARD_TYPE = 'player';
-const MAX_SEARCH_NUMBER = 5000;
 const SEARCH_ATTEMPTS_WHEN_ERROR = 3;
 let storeCurrentValue;
 
-class _CardsInfo extends Cards {
+class _CardsTrade extends Cards {
   constructor(config, store) {
     super('cardsTrade', store);
     this.config = config;
@@ -80,5 +77,5 @@ class _CardsInfo extends Cards {
   }
 
 }
-const CardsInfo = _CardsInfo;
-export default CardsInfo;
+const CardsTrade = _CardsTrade;
+export default CardsTrade;

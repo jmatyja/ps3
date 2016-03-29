@@ -3,8 +3,6 @@ import MarketClient from './helpers/MarketClient';
 import MysqlDbClient from './helpers/MysqlDbClient';
 import createStore from './redux/create';
 import CardsInfo from './workers/CardsInfo';
-import mysql from 'mysql-promise';
-import config from './config';
 
 const TYPE_CARDS_INFO = 'cardsinfo';
 let accountConfig = {

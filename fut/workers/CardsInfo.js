@@ -1,8 +1,6 @@
 import Cards from './abstract/Cards';
-import connectToWebApp from '../connector';
-import setMarketData from '../market';
 import * as cardsInfoActions from '../redux/modules/cardsInfo';
-import { bindActionCreators } from 'redux'
+import { bindActionCreators } from 'redux';
 import moment from 'moment';
 
 //time intervals are in seconds
