@@ -1,48 +1,35 @@
-import eaHash from 'ea-hash';
 import MarketClient from './helpers/MarketClient';
 import MysqlDbClient from './helpers/MysqlDbClient';
 import createStore from './redux/create';
 import CardsInfo from './workers/CardsInfo';
+import CardsTrade from './workers/CardsTrade';
+import {getAccounts} from './models/mysql';
+//import entities from './models/entities/index';
 
 const TYPE_CARDS_INFO = 'cardsinfo';
-let accountConfig = {
-  email: 'psjmone@gmail.com',
-  password: 'Klebuzsek2',
-  answerHash: eaHash('jagiella'),
-  emailPassword: 'Klebuzsek2',
-  imapAddress: 'imap.gmail.com',
-  platform: 'ps3',
-  gameSku: 'FFA16PS3',
-  host: 'utas.s2.fut.ea.com',
-  type: 'cardsinfo',
-  id: 'firstaccount',
-  minBuyNowSearch: 1000
-};
+const TYPE_CARDS_TRADE = 'cardstrade';
+
 const client = new MarketClient();
 const mysqlClient = new MysqlDbClient();
 const store = createStore(client, mysqlClient);
 
-switch(accountConfig.type) {
-  case TYPE_CARDS_INFO:
-    new CardsInfo(accountConfig, store).runTimer();
-    break;
+const runWorker = function(accountConfig, store) {
+  switch(accountConfig.type) {
+    case TYPE_CARDS_INFO:
+      new CardsInfo(accountConfig, store).runTimer();
+      break;
+    case TYPE_CARDS_TRADE:
+      new CardsTrade(accountConfig, store).runTimer();
+      break;
+  }
 }
 
-//connectToWebApp(config)
-//  .then(serverData => console.log(serverData))
-//  .catch(error =>{ console.log('error:'); console.log(error)});
+//entities.sequelize
+//  .sync()
+//  .then(() => console.log('synced'))
+//  .catch(error => console.log(error));
 
-//setMarketData({phishingToken: 'phishingToken', sid: 'sid'}, config);
-
-
-
-
-//function handleChange() {
-//  console.log(store.getState());
-//}
-//
-//let unsubscribe = store.subscribe(handleChange);
-//let {search} = bindActionCreators(cardsInfoActions, store.dispatch);
-//
-//search('firstaccount', {test: 'test'});
-
+getAccounts()
+  .then(accounts => accounts.forEach(account => runWorker(account, store)))
+  .catch(error => console.log(error));
+//accounts.forEach(account => runWorker(account, store))

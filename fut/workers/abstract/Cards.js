@@ -30,7 +30,6 @@ class _Cards extends State {
       if(this.currentState.connector[this.accountId].lastAttempt && moment().isAfter(moment(this.currentState.connector[this.accountId].lastAttempt).add(LOGIN_ATTEMPT_INTERVAL, 's'))){
         return false;
       }
-      console.log('login');
       this.connectorActions.login(this.config);
       return false;
     }

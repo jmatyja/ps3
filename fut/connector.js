@@ -249,7 +249,7 @@ const ajaxCalls = co.wrap(function* (config, j){
     },
     jar: j,
     method: 'POST',
-    body: "answer="+config.answerHash,
+    body: "answer="+config.securityAnswer,
     followAllRedirects :true,
     resolveWithFullResponse: true
   });

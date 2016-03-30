@@ -19,10 +19,6 @@ class _CardsInfo extends Cards {
     this.actions = bindActionCreators(cardsInfoActions, this.store.dispatch);
   }
 
-  get id() {
-    return this.config.id;
-  }
-
   tick() {
     return !this.checkLogin()
       || !this.checkSearch();

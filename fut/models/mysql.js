@@ -1,8 +1,14 @@
 import mysql from 'mysql-promise';
 import config from '../config';
-const db = mysql();
-if (!db.isConfigured()) {
-  db.configure(config.db);
+import entities from '../models/entities/index';
+
+
+export function getAccounts() {
+  return entities.Account.findAll({where: {isActive: '1', serverName: config.serverName}});
+}
+
+export function getCardsForAccount(accountId) {
+  return entities.TradeCard.findAll({where: {accountId: accountId}});
 }
 
 export function addAuctions(accountConfig, data) {

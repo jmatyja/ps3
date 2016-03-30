@@ -19,18 +19,31 @@ class _CardsTrade extends Cards {
     this.actions = bindActionCreators(cardsTradeActions, this.store.dispatch);
   }
 
-  get id() {
-    return this.config.id;
-  }
-
   tick() {
-    return !this.checkLogin()
-      || !this.checkTradingCards()
+    return this.checkTradingCards()
+      || !this.checkTradingCardsPrices()
       || !this.checkSearch();
   }
 
   checkTradingCards() {
+    console.log(this.state )
+    if(!this.state || !this.state.cards){
+      this.actions.getCardsForAccount(this.id);
+      return false;
+    }
+    if(this.state.cardsGetted == true && this.state.gettingCards == false && this.state.cards && this.state.cards.length == 0) {
+      this.actions.getCardsFromCardsInfo(this.config);
+      return false;
+    }
+    if(!this.state.cards || this.state.cards.length == 0) {
+      return false;
+    }
+
     return true;
+  }
+
+  checkTradingCardsPrices() {
+    return false;
   }
 
   handleStoreChange() {

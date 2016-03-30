@@ -20,5 +20,6 @@ module.exports = Object.assign({
     "user": "root",
     "password": "Klebuzsek2",
     "database": "ultimateteamtests"
-  }
+  },
+  serverName: 'main'
 }, environment);
