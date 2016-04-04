@@ -1,8 +1,7 @@
-import Cards from './abstract/Cards';
+import MarketLogin from './abstract/MarketLogin';
 import * as cardsTradeActions from '../redux/modules/cardsTrade';
 import { bindActionCreators } from 'redux';
 import moment from 'moment';
-
 
 //time intervals are in seconds
 const SEARCH_INTERVAL = 15;
@@ -10,9 +9,10 @@ const CARDS_NUMBERS_PER_SEARCH = 50;
 const SEARCH_CARD_LEV = 'gold';
 const SEARCH_CARD_TYPE = 'player';
 const SEARCH_ATTEMPTS_WHEN_ERROR = 3;
+const CARDS_COUNT = 10;
 let storeCurrentValue;
 
-class _CardsTrade extends Cards {
+class _CardsTrade extends MarketLogin {
   constructor(config, store) {
     super('cardsTrade', store);
     this.config = config;
@@ -32,13 +32,12 @@ class _CardsTrade extends Cards {
       return false;
     }
     if(this.state.cardsGetted == true && this.state.gettingCards == false && this.state.cards && this.state.cards.length == 0) {
-      this.actions.getCardsFromCardsInfo(this.config);
+      this.actions.addCardsFromCardsInfo(this.id, CARDS_COUNT);
       return false;
     }
     if(!this.state.cards || this.state.cards.length == 0) {
       return false;
     }
-
     return true;
   }
 

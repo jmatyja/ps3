@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux'
 const LOGIN_ATTEMPT_INTERVAL = 60;
 
 
-class _Cards extends State {
+class _MarketLogin extends State {
   constructor(stateConfigName, store) {
     super(stateConfigName);
     this.store = store;
@@ -40,5 +40,5 @@ class _Cards extends State {
     return true;
   }
 }
-const Cards = _Cards;
-export default Cards;
+const MarketLogin = _MarketLogin;
+export default MarketLogin;

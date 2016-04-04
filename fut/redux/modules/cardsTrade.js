@@ -4,9 +4,11 @@ const SEARCH_FAIL = 'cards-trade/SEARCH_FAIL';
 const GET_CARDS = 'cards-trade/GET_CARDS';
 const GET_CARDS_SUCCESS = 'cards-trade/GET_CARDS_SUCCESS';
 const GET_CARDS_FAIL = 'cards-trade/GET_CARDS_FAIL';
+const ADD_CARDS = 'cards-trade/ADD_CARDS';
+const ADD_CARDS_SUCCESS = 'cards-trade/ADD_CARDS_SUCCESS';
+const ADD_CARDS_FAIL = 'cards-trade/ADD_CARDS_FAIL';
 
-const initialState = {
-};
+const initialState = {};
 
 export default function cardsTrade(state = initialState, action = {}) {
   switch (action.type) {
@@ -76,10 +78,17 @@ export function search(id, urlQuery) {
 }
 
 export function getCardsForAccount(id) {
-
   return {
     types: [GET_CARDS, GET_CARDS_SUCCESS, GET_CARDS_FAIL],
     mysqlPromise: (client) => client.getCardsForAccount(id),
+    id: id
+  }
+}
+
+export function addCardsFromCardsInfo(id, limit) {
+  return {
+    types: [ADD_CARDS, ADD_CARDS_SUCCESS, ADD_CARDS_FAIL],
+    mysqlPromise: (client) => client.getCardsFromCardsInfo(id, limit),
     id: id
   }
 }

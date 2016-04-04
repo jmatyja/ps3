@@ -3,11 +3,13 @@ import MysqlDbClient from './helpers/MysqlDbClient';
 import createStore from './redux/create';
 import CardsInfo from './workers/CardsInfo';
 import CardsTrade from './workers/CardsTrade';
+import Cards from './workers/Cards';
 import {getAccounts} from './models/mysql';
 //import entities from './models/entities/index';
 
 const TYPE_CARDS_INFO = 'cardsinfo';
 const TYPE_CARDS_TRADE = 'cardstrade';
+const TYPE_CARDS = 'cards';
 
 const client = new MarketClient();
 const mysqlClient = new MysqlDbClient();
@@ -20,6 +22,9 @@ const runWorker = function(accountConfig, store) {
       break;
     case TYPE_CARDS_TRADE:
       new CardsTrade(accountConfig, store).runTimer();
+      break;
+    case TYPE_CARDS:
+      new Cards(accountConfig, store).runTimer();
       break;
   }
 }

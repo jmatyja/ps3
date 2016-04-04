@@ -2,9 +2,13 @@ export default (sequelize, DataTypes) => {
   let Auction = sequelize.define("Auction", {
     type: DataTypes.STRING,
     platform: DataTypes.STRING,
+    accountId: {
+      type: DataTypes.INTEGER,
+      field: 'account_id'
+    },
     tradeId: {
       type: DataTypes.STRING,
-      field: 'type_id'
+      field: 'trade_id'
     },
     cardId: {
       type: DataTypes.STRING,
@@ -38,7 +42,7 @@ export default (sequelize, DataTypes) => {
   }, {
     classMethods: {
       associate: function(entities) {
-        Auction.belongsTo(entities.Account, {foreignKey: 'fk_accounts'});
+        Auction.belongsTo(entities.Account, {foreignKey: 'account_id'});
       }
     },
     tableName: 'auctions'

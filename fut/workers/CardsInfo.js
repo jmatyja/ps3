@@ -1,4 +1,4 @@
-import Cards from './abstract/Cards';
+import MarketLogin from './abstract/MarketLogin';
 import * as cardsInfoActions from '../redux/modules/cardsInfo';
 import { bindActionCreators } from 'redux';
 import moment from 'moment';
@@ -12,7 +12,7 @@ const MAX_SEARCH_NUMBER = 5000;
 const SEARCH_ATTEMPTS_WHEN_ERROR = 3;
 let storeCurrentValue;
 
-class _CardsInfo extends Cards {
+class _CardsInfo extends MarketLogin {
   constructor(config, store) {
     super('cardsInfo', store);
     this.config = config;
@@ -29,6 +29,7 @@ class _CardsInfo extends Cards {
     if(!this.state || !this.state.data){
       return;
     }
+
     let previousValue = storeCurrentValue;
     storeCurrentValue = this.state;
     //first search
@@ -43,7 +44,6 @@ class _CardsInfo extends Cards {
   checkSearch() {
     if(!this.state) {
       this.actions.search(this.accountId, {
-        minb:this.config.minBuyNowSearch,
         num: CARDS_NUMBERS_PER_SEARCH,
         lev: SEARCH_CARD_LEV,
         type: SEARCH_CARD_TYPE,
@@ -53,7 +53,6 @@ class _CardsInfo extends Cards {
     }
     if(this.state.getting == false && moment().isAfter(moment(this.state.lastSearch).add(SEARCH_INTERVAL, 's'))) {
       this.actions.search(this.accountId, {
-        minb:this.config.minBuyNowSearch,
         num: CARDS_NUMBERS_PER_SEARCH,
         lev: SEARCH_CARD_LEV,
         type: SEARCH_CARD_TYPE,

@@ -12,6 +12,7 @@ export default function clientMiddleware(client, mysqlClient) {
       const [REQUEST, SUCCESS, FAILURE] = types;
       next({...rest, type: REQUEST});
       const actionPromise = promise ? promise(client) : mysqlPromise(mysqlClient);
+
       actionPromise.then(
         (result) => next({...rest, result, type: SUCCESS}),
         (error) => next({...rest, error, type: FAILURE})
