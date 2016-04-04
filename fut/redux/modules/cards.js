@@ -37,12 +37,11 @@ export default function cards(state = initialState, action = {}) {
         ...state,
         tradingCards: groupTradingCards(state.auctions),
         lastUpdateTradeCards: new Date()
-      }
+      };
     default:
       return state;
   }
 }
-
 
 export function getAuctions(toDate) {
   return {
@@ -62,8 +61,11 @@ export function updateTradingCards() {
     type: UPDATE_TRADING_CARDS
   };
 }
-function groupTradingCardsGroup(cards) {
+function getTradingCardsGroup(cards) {
+  let groupCards = (tradingCardsGroup, card) => {
 
+  };
+  return R.reduce(groupCards, {}, cards);
 }
 function groupTradingCards(cards) {
   let groupAuction = (tradingCards, card) => {
@@ -72,10 +74,9 @@ function groupTradingCards(cards) {
     } else {
       tradingCards[card.assetId].cards = [card];
     }
-    tradingCards[card.assetId].data = groupTradingCardsGroup(tradingCards[card.assetId].cards);
-  }
+    tradingCards[card.assetId].data = getTradingCardsGroup(tradingCards[card.assetId].cards);
+  };
   return R.reduce(groupAuction, {}, cards)
-
 }
 
 function setAuctionsFromDb(dbAuctions) {
