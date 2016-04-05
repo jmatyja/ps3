@@ -12,13 +12,13 @@ const environment = {
 module.exports = Object.assign({
   db: environment.isProduction ? {
     "host": "localhost",
-    "user": "root",
-    "password": "Klebuzsek2",
+    "user": "jmatyja",
+    "password": "",
     "database": "ultimateteam"
   } : {
     "host": "localhost",
-    "user": "root",
-    "password": "Klebuzsek2",
+    "user": "jmatyja",
+    "password": "",
     "database": "ultimateteamtests"
   },
   serverName: 'main'

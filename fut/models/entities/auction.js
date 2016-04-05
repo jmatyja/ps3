@@ -36,7 +36,7 @@ export default (sequelize, DataTypes) => {
       field: 'resource_id'
     },
     addDate: {
-      type: DataTypes.TIME,
+      type: DataTypes.DATE,
       field: 'add_date'
     }
   }, {

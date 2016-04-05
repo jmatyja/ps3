@@ -7,7 +7,7 @@ export function getAccounts() {
 }
 
 export function getCardsForAccount(accountId) {
-  return entities.TradeCard.findAll({where: {accountId: accountId}});
+  return entities.TradeCard.findAll({limit: 100, where: {accountId: accountId}});
 }
 
 export function getCardsFromCardsInfo(id, limit) {

@@ -5,7 +5,7 @@ import CardsInfo from './workers/CardsInfo';
 import CardsTrade from './workers/CardsTrade';
 import Cards from './workers/Cards';
 import {getAccounts} from './models/mysql';
-//import entities from './models/entities/index';
+import entities from './models/entities/index';
 
 const TYPE_CARDS_INFO = 'cardsinfo';
 const TYPE_CARDS_TRADE = 'cardstrade';
@@ -29,12 +29,11 @@ const runWorker = function(accountConfig, store) {
   }
 }
 
-//entities.sequelize
-//  .sync()
-//  .then(() => console.log('synced'))
-//  .catch(error => console.log(error));
+// entities.sequelizee
+//   .sync()
+//   .then(() => console.log('synced'))
+//   .catch(error => console.log(error));
 
 getAccounts()
   .then(accounts => accounts.forEach(account => runWorker(account, store)))
   .catch(error => console.log(error));
-//accounts.forEach(account => runWorker(account, store))

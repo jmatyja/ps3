@@ -6,6 +6,7 @@ const GET_FAIL = 'cards/GET_FAIL';
 const SET_TRADING_CARDS = 'cards/SET_TRADING_CARDS';
 const UPDATE_TRADING_CARDS = 'cards/UPDATE_TRADING_CARDS';
 const initialState = {
+  firstGroupped: false
 };
 
 export default function cards(state = initialState, action = {}) {
@@ -22,6 +23,13 @@ export default function cards(state = initialState, action = {}) {
         ...state,
         getting: false,
         getted: true,
+        auctionsArr: R.map(auction => {
+          return {
+            assetId: auction.assetId,
+            currentBid: auction.currentBid,
+            buyNow: auction.buyNow
+          };
+        }, action.result),
         auctions: setAuctionsFromDb(action.result)
       };
     case GET_FAIL:
@@ -35,8 +43,8 @@ export default function cards(state = initialState, action = {}) {
     case SET_TRADING_CARDS:
       return {
         ...state,
-        tradingCards: groupTradingCards(state.auctions),
-        lastUpdateTradeCards: new Date()
+        tradingCards: groupTradingCards(state.auctionsArr),
+        firstGroupped: true
       };
     default:
       return state;
@@ -62,29 +70,46 @@ export function updateTradingCards() {
   };
 }
 function getTradingCardsGroup(cards) {
-  let groupCards = (tradingCardsGroup, card) => {
-
+  console.log('group trading card');
+  let groupCards = (tradingCardsGroup, cards) => {
+    return {
+      
+    };
   };
   return R.reduce(groupCards, {}, cards);
 }
 function groupTradingCards(cards) {
-  let groupAuction = (tradingCards, card) => {
-    if(tradingCards.hasOwnProperty(card.assetId)) {
-      tradingCards[card.assetId].cards.push(card);
-    } else {
-      tradingCards[card.assetId].cards = [card];
-    }
-    tradingCards[card.assetId].data = getTradingCardsGroup(tradingCards[card.assetId].cards);
+  
+  const combine = (entry) => {
+    return R.reduce((acc, card) => {
+      acc.buyNow.push({buyNow: card[0].buyNow, count: card.length});
+      return {
+        ...acc,
+        assetId: card[0].assetId
+      }
+    }, {assetId: false, buyNow: []}, entry);
   };
-  return R.reduce(groupAuction, {}, cards)
-}
+  
+  const process = R.pipe(
+    R.groupBy(R.prop('assetId')),
+    R.values,
+    R.map(R.groupBy(R.prop('buyNow'))),
+    R.map(R.values),
+    R.map(combine)
+    );
+    
+  return process(cards);
+}  
 
 function setAuctionsFromDb(dbAuctions) {
-  let setAuction = (auctionsObj, auction ) => {
+  if(dbAuctions.length == 0) {
+    return false;
+  }
+  const setAuction = (auctionsObj, auction ) => {
     auctionsObj[auction.tradeId] = {
-      asset_id: auction.assetId,
-      current_bid: auction.currentBid,
-      buy_now: auction.buyNow
+      assetId: auction.assetId,
+      currentBid: auction.currentBid,
+      buyNow: auction.buyNow
     };
     return auctionsObj;
   };

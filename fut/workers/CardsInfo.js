@@ -29,7 +29,6 @@ class _CardsInfo extends MarketLogin {
     if(!this.state || !this.state.data){
       return;
     }
-
     let previousValue = storeCurrentValue;
     storeCurrentValue = this.state;
     //first search

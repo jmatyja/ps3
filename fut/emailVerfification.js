@@ -64,6 +64,7 @@ export default function emailVerification(config) {
             });
           });
           f.once('error', function(error) {
+            console.log(error);
             reject(error);
           });
 
@@ -71,6 +72,7 @@ export default function emailVerification(config) {
       });
       imap.once('error', function(error) {
         reject(error);
+        console.log(error);
       });
       imap.connect();
     }

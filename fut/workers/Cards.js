@@ -56,14 +56,14 @@ class _Cards extends State {
       this.actions.getAuctions(moment().subtract(GET_ERLIER_AUCTIONS_TIME, 's').toDate());
       return false;
     }
-    if(this.state.getted && !this.state.tradingCards) {
+    if(this.state.getted && this.state.auctions != false && this.state.firstGroupped == false) {
       this.actions.setTradingCards();
       return false;
     }
     if(this.state.tradingCards
       && this.state.lastUpdateTradeCards
       && moment().isAfter(moment(this.state.lastUpdateTradeCards).add(UPDATE_TRADE_CARDS_INTERVAL, 's'))) {
-      this.actions.updateTradingCards();
+      //this.actions.updateTradingCards();
       return false;
     }
     return true;
