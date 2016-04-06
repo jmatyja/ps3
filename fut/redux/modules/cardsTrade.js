@@ -1,3 +1,5 @@
+import {addAuctions} from '../redux/modules/cards';
+
 const SEARCH = 'cards-trade/SEARCH';
 const SEARCH_SUCCESS = 'cards-trade/SEARCH_SUCCESS';
 const SEARCH_FAIL = 'cards-trade/SEARCH_FAIL';
@@ -38,31 +40,6 @@ export default function cardsTrade(state = initialState, action = {}) {
         searchAttempts: state[action.id].searchAttempts +1
       };
       return state;
-    case GET_CARDS:
-      state[action.id] = {
-        ...state[action.id],
-        gettingCards: true,
-        cardsGetted: false
-      };
-      return state;
-    case GET_CARDS_SUCCESS:
-      state[action.id] = {
-        ...state[action.id],
-        gettingCards: false,
-        cards: action.result,
-        gettingCardsError: false,
-        cardsGetted: true
-      };
-      return state;
-    case GET_CARDS_FAIL:
-      state[action.id] = {
-        ...state[action.id],
-        gettingCards: false,
-        gettingCardsError: action.error,
-        cards: false,
-        cardsGetted: false
-      };
-      return state;
     default:
       return state;
   }
@@ -75,20 +52,4 @@ export function search(id, urlQuery) {
     id: id,
     startSearch: urlQuery.start
   };
-}
-
-export function getCardsForAccount(id) {
-  return {
-    types: [GET_CARDS, GET_CARDS_SUCCESS, GET_CARDS_FAIL],
-    mysqlPromise: (client) => client.getCardsForAccount(id),
-    id: id
-  }
-}
-
-export function addCardsFromCardsInfo(id, limit) {
-  return {
-    types: [ADD_CARDS, ADD_CARDS_SUCCESS, ADD_CARDS_FAIL],
-    mysqlPromise: (client) => client.getCardsFromCardsInfo(id, limit),
-    id: id
-  }
 }

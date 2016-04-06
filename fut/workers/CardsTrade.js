@@ -9,8 +9,8 @@ const CARDS_NUMBERS_PER_SEARCH = 50;
 const SEARCH_CARD_LEV = 'gold';
 const SEARCH_CARD_TYPE = 'player';
 const SEARCH_ATTEMPTS_WHEN_ERROR = 3;
+const MAX_SEARCH_NUMBER = 5000;
 const CARDS_COUNT = 10;
-let storeCurrentValue;
 
 class _CardsTrade extends MarketLogin {
   constructor(config, store) {
@@ -20,51 +20,12 @@ class _CardsTrade extends MarketLogin {
   }
 
   tick() {
-    return this.checkTradingCards()
-      || !this.checkTradingCardsPrices()
-      || !this.checkSearch();
-  }
-
-  checkTradingCards() {
-    console.log(this.state )
-    if(!this.state || !this.state.cards){
-      this.actions.getCardsForAccount(this.id);
-      return false;
-    }
-    if(this.state.cardsGetted == true && this.state.gettingCards == false && this.state.cards && this.state.cards.length == 0) {
-      this.actions.addCardsFromCardsInfo(this.id, CARDS_COUNT);
-      return false;
-    }
-    if(!this.state.cards || this.state.cards.length == 0) {
-      return false;
-    }
-    return true;
-  }
-
-  checkTradingCardsPrices() {
-    return false;
-  }
-
-  handleStoreChange() {
-    this.state = this.store.getState();
-    if(!this.state || !this.state.data){
-      return;
-    }
-    let previousValue = storeCurrentValue;
-    storeCurrentValue = this.state;
-    //first search
-    if(this.state.data && (!previousValue || !previousValue.data)) {
-      this.actions.addAuctions(this.config, this.state.data);
-    }
-    if(previousValue && previousValue.data && previousValue.lastSearch != storeCurrentValue.lastSearch) {
-      this.actions.addAuctions(this.config, this.state.data);
-    }
+    return !this.checkSearch();
   }
 
   checkSearch() {
     if(!this.state) {
       this.actions.search(this.accountId, {
-        minb:this.config.minBuyNowSearch,
         num: CARDS_NUMBERS_PER_SEARCH,
         lev: SEARCH_CARD_LEV,
         type: SEARCH_CARD_TYPE,
@@ -74,7 +35,6 @@ class _CardsTrade extends MarketLogin {
     }
     if(this.state.getting == false && moment().isAfter(moment(this.state.lastSearch).add(SEARCH_INTERVAL, 's'))) {
       this.actions.search(this.accountId, {
-        minb:this.config.minBuyNowSearch,
         num: CARDS_NUMBERS_PER_SEARCH,
         lev: SEARCH_CARD_LEV,
         type: SEARCH_CARD_TYPE,

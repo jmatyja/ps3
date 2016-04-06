@@ -5,6 +5,8 @@ const GET_SUCCESS = 'cards/GET_SUCCESS';
 const GET_FAIL = 'cards/GET_FAIL';
 const SET_TRADING_CARDS = 'cards/SET_TRADING_CARDS';
 const UPDATE_TRADING_CARDS = 'cards/UPDATE_TRADING_CARDS';
+const SET_AUCTIONS = 'cards/SET_AUCTIONS';
+
 const initialState = {
   firstGroupped: false
 };
@@ -23,13 +25,6 @@ export default function cards(state = initialState, action = {}) {
         ...state,
         getting: false,
         getted: true,
-        auctionsArr: R.map(auction => {
-          return {
-            assetId: auction.assetId,
-            currentBid: auction.currentBid,
-            buyNow: auction.buyNow
-          };
-        }, action.result),
         auctions: setAuctionsFromDb(action.result)
       };
     case GET_FAIL:
@@ -43,9 +38,14 @@ export default function cards(state = initialState, action = {}) {
     case SET_TRADING_CARDS:
       return {
         ...state,
-        tradingCards: groupTradingCards(state.auctionsArr),
+        tradingCards: groupTradingCards(state.auctions),
         firstGroupped: true
       };
+      case SET_AUCTIONS:
+        return {
+          ...state,
+          auctions: setAuctionsFromMarket(action.auctions, state.auctions)
+        };
     default:
       return state;
   }
@@ -69,28 +69,27 @@ export function updateTradingCards() {
     type: UPDATE_TRADING_CARDS
   };
 }
-function getTradingCardsGroup(cards) {
-  console.log('group trading card');
-  let groupCards = (tradingCardsGroup, cards) => {
-    return {
-      
-    };
+
+export function setAuctions(auctions) {
+  return {
+    type: SET_AUCTIONS,
+    auctions: auctions
   };
-  return R.reduce(groupCards, {}, cards);
 }
 function groupTradingCards(cards) {
   
   const combine = (entry) => {
     return R.reduce((acc, card) => {
-      acc.buyNow.push({buyNow: card[0].buyNow, count: card.length});
+      acc.prices.push({buyNow: card[0].buyNow, count: card.length});
       return {
         ...acc,
         assetId: card[0].assetId
-      }
-    }, {assetId: false, buyNow: []}, entry);
+      };
+    }, {assetId: false, prices: []}, entry);
   };
   
   const process = R.pipe(
+    R.values,
     R.groupBy(R.prop('assetId')),
     R.values,
     R.map(R.groupBy(R.prop('buyNow'))),
@@ -100,18 +99,31 @@ function groupTradingCards(cards) {
     
   return process(cards);
 }  
-
+function setAuctionsFromMarket(newAuctions, currentAuctions) {
+  if(newAuctions.length == 0) {
+    return currentAuctions;
+  }
+  const setAuction = (acc, auction) => {
+    acc[auction.tradeId] = {
+      assetId: auction.itemData.assetId,
+      buyNow: auction.buyNowPrice,
+      addDate: new Date()
+    };
+    return acc;
+  };
+  return R.reduce(setAuction, currentAuctions, newAuctions);
+}
 function setAuctionsFromDb(dbAuctions) {
   if(dbAuctions.length == 0) {
     return false;
   }
-  const setAuction = (auctionsObj, auction ) => {
-    auctionsObj[auction.tradeId] = {
+  const setAuction = (acc, auction ) => {
+    acc[auction.tradeId] = {
       assetId: auction.assetId,
-      currentBid: auction.currentBid,
-      buyNow: auction.buyNow
+      buyNow: auction.buyNow,
+      addDate: auction.addDate
     };
-    return auctionsObj;
+    return acc;
   };
 
   return R.reduce(setAuction, {}, dbAuctions);
