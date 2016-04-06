@@ -12,8 +12,8 @@ const environment = {
 module.exports = Object.assign({
   db: environment.isProduction ? {
     "host": "localhost",
-    "user": "jmatyja",
-    "password": "",
+    "user": "root",
+    "password": "Klebuzsek2",
     "database": "ultimateteam"
   } : {
     "host": "localhost",

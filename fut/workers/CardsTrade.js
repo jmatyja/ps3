@@ -1,3 +1,4 @@
+import {setAuctions} from '../redux/modules/cards';
 import MarketLogin from './abstract/MarketLogin';
 import * as cardsTradeActions from '../redux/modules/cardsTrade';
 import { bindActionCreators } from 'redux';
@@ -10,17 +11,37 @@ const SEARCH_CARD_LEV = 'gold';
 const SEARCH_CARD_TYPE = 'player';
 const SEARCH_ATTEMPTS_WHEN_ERROR = 3;
 const MAX_SEARCH_NUMBER = 5000;
-const CARDS_COUNT = 10;
+
+let storeCurrentValue;
 
 class _CardsTrade extends MarketLogin {
   constructor(config, store) {
     super('cardsTrade', store);
     this.config = config;
-    this.actions = bindActionCreators(cardsTradeActions, this.store.dispatch);
+    this.actions = bindActionCreators({...cardsTradeActions, setAuctions}, this.store.dispatch);
   }
 
   tick() {
     return !this.checkSearch();
+  }
+
+  handleStoreChange() {
+    this.state = this.store.getState();
+    if(!this.state || !this.state.cards){
+      return;
+    }
+    let previousValue = storeCurrentValue;
+    storeCurrentValue = this.state;
+    //first search
+
+    if(this.state.cards && (!previousValue || !previousValue.cards)) {
+      this.actions.setAuctions(this.state.cards.auctionInfo);
+      this.actions.addAuctions(this.config, this.state.cards);
+    }
+    if(previousValue && previousValue.cards && previousValue.lastSearch != storeCurrentValue.lastSearch) {
+      this.actions.setAuctions(this.state.cards.auctionInfo);
+      this.actions.addAuctions(this.config, this.state.cards);
+    }
   }
 
   checkSearch() {

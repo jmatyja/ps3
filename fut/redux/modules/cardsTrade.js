@@ -1,14 +1,12 @@
-import {addAuctions} from '../redux/modules/cards';
-
 const SEARCH = 'cards-trade/SEARCH';
 const SEARCH_SUCCESS = 'cards-trade/SEARCH_SUCCESS';
 const SEARCH_FAIL = 'cards-trade/SEARCH_FAIL';
 const GET_CARDS = 'cards-trade/GET_CARDS';
 const GET_CARDS_SUCCESS = 'cards-trade/GET_CARDS_SUCCESS';
 const GET_CARDS_FAIL = 'cards-trade/GET_CARDS_FAIL';
-const ADD_CARDS = 'cards-trade/ADD_CARDS';
-const ADD_CARDS_SUCCESS = 'cards-trade/ADD_CARDS_SUCCESS';
-const ADD_CARDS_FAIL = 'cards-trade/ADD_CARDS_FAIL';
+const ADD_AUCTIONS = 'cards-trade/ADD_AUCTIONS';
+const ADD_AUCTIONS_SUCCESS = 'cards-trade/ADD_AUCTIONS_SUCCESS';
+const ADD_AUCTIONS_FAIL = 'cards-trade/ADD_AUCTIONS_FAIL';
 
 const initialState = {};
 
@@ -24,7 +22,7 @@ export default function cardsTrade(state = initialState, action = {}) {
       state[action.id] = {
         ...state[action.id],
         searching: false,
-        data: action.result,
+        cards: JSON.parse(action.result),
         lastSearch: new Date(),
         searchAttempts: 0,
         searchingError: null
@@ -40,6 +38,28 @@ export default function cardsTrade(state = initialState, action = {}) {
         searchAttempts: state[action.id].searchAttempts +1
       };
       return state;
+    case ADD_AUCTIONS:
+      state[action.id] = {
+        ...state[action.id],
+        addingAuctions: true,
+        addedAuctions: false
+      };
+      return state;
+    case ADD_AUCTIONS_SUCCESS:
+      state[action.id] = {
+        ...state[action.id],
+        addingAuctions: false,
+        addedAuctions: true
+      };
+      return state;
+    case ADD_AUCTIONS_FAIL:
+      state[action.id] = {
+        ...state[action.id],
+        addingAuctions: false,
+        addedAuctions: false,
+        addingAuctionsError: action.error
+      };
+      return state;
     default:
       return state;
   }
@@ -51,5 +71,13 @@ export function search(id, urlQuery) {
     promise: (client) => client.search(id, urlQuery),
     id: id,
     startSearch: urlQuery.start
+  };
+}
+
+export function addAuctions(config, data) {
+  return {
+    types: [ADD_AUCTIONS, ADD_AUCTIONS_SUCCESS, ADD_AUCTIONS_FAIL],
+    mysqlPromise: (client) => client.addAuctions(config, data),
+    id: config.id
   };
 }
