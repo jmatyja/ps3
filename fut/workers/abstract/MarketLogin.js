@@ -19,22 +19,23 @@ class _MarketLogin extends State {
   }
 
   checkLogin() {
-    if(!this.currentState){
+
+    if(!this.currentState || !this.currentState.connector || !this.currentState.connector[this.id]){
       this.connectorActions.login(this.config);
     }
-    if( !this.currentState.connector || !this.currentState.connector[this.accountId] || this.currentState.connector[this.accountId].loggingIn){
+    if( !this.currentState.connector || !this.currentState.connector[this.id] || this.currentState.connector[this.id].loggingIn){
       return false;
     }
 
-    if(!this.currentState.connector[this.accountId].loggedInd) {
-      if(this.currentState.connector[this.accountId].lastAttempt && moment().isAfter(moment(this.currentState.connector[this.accountId].lastAttempt).add(LOGIN_ATTEMPT_INTERVAL, 's'))){
+    if(!this.currentState.connector[this.id].loggedInd) {
+      if(this.currentState.connector[this.id].lastAttempt && moment().isAfter(moment(this.currentState.connector[this.id].lastAttempt).add(LOGIN_ATTEMPT_INTERVAL, 's'))){
         return false;
       }
       this.connectorActions.login(this.config);
       return false;
     }
-    if(this.currentState.connector[this.accountId].loggedInd && !this.currentState.connector[this.accountId].marketDataIsSet) {
-      this.connectorActions.setMarketData(this.currentState.connector[this.accountId].serverData, this.config);
+    if(this.currentState.connector[this.id].loggedInd && !this.currentState.connector[this.id].marketDataIsSet) {
+      this.connectorActions.setMarketData(this.currentState.connector[this.id].serverData, this.config);
       return false;
     }
     return true;

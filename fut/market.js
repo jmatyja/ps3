@@ -54,14 +54,15 @@ export default function setMarketData(serverData, config) {
 }
 
 export function search(id, urlQuery) {
-  //const urlString = url.format({
-  //  host: _config[id].host,
-  //  protocol: PROTOCOL,
-  //  pathname: SEARCH_PATH,
-  //  query: urlQuery
-  //});
-  const url = 'http://localhost:3000/1page.json';
-  return get(id, url);
+  const urlString = url.format({
+    host: _config[id].host,
+    protocol: PROTOCOL,
+    pathname: SEARCH_PATH,
+    query: urlQuery
+  });
+  //const url = 'http://localhost:3000/2page.json';
+  console.log(urlString);
+  return get(id, urlString);
  }
 
 export function bid(bidValue, tradeId) {

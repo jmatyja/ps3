@@ -12,7 +12,7 @@ const SEARCH_CARD_TYPE = 'player';
 const SEARCH_ATTEMPTS_WHEN_ERROR = 3;
 const MAX_SEARCH_NUMBER = 5000;
 
-let storeCurrentValue;
+let storeCurrentValue = {};
 
 class _CardsTrade extends MarketLogin {
   constructor(config, store) {
@@ -22,23 +22,26 @@ class _CardsTrade extends MarketLogin {
   }
 
   tick() {
-    return !this.checkSearch();
+
+    return !this.checkLogin() || !this.checkSearch();
   }
 
   handleStoreChange() {
+
     this.state = this.store.getState();
     if(!this.state || !this.state.cards){
       return;
     }
-    let previousValue = storeCurrentValue;
-    storeCurrentValue = this.state;
+
+    let previousValue = storeCurrentValue[this.id];
+    storeCurrentValue[this.id] = this.state;
     //first search
 
     if(this.state.cards && (!previousValue || !previousValue.cards)) {
       this.actions.setAuctions(this.state.cards.auctionInfo);
       this.actions.addAuctions(this.config, this.state.cards);
     }
-    if(previousValue && previousValue.cards && previousValue.lastSearch != storeCurrentValue.lastSearch) {
+    if(previousValue && previousValue.cards && previousValue.lastSearch != storeCurrentValue[this.id].lastSearch) {
       this.actions.setAuctions(this.state.cards.auctionInfo);
       this.actions.addAuctions(this.config, this.state.cards);
     }
@@ -46,25 +49,25 @@ class _CardsTrade extends MarketLogin {
 
   checkSearch() {
     if(!this.state) {
-      this.actions.search(this.accountId, {
+      this.actions.search(this.id, {
         num: CARDS_NUMBERS_PER_SEARCH,
         lev: SEARCH_CARD_LEV,
         type: SEARCH_CARD_TYPE,
-        start: '0'
+        start: this.config.startSearch
       });
       return false;
     }
-    if(this.state.getting == false && moment().isAfter(moment(this.state.lastSearch).add(SEARCH_INTERVAL, 's'))) {
-      this.actions.search(this.accountId, {
+    if(this.state.searching == false && moment().isAfter(moment(this.state.lastSearch).add(SEARCH_INTERVAL, 's'))) {
+      this.actions.search(this.id, {
         num: CARDS_NUMBERS_PER_SEARCH,
         lev: SEARCH_CARD_LEV,
         type: SEARCH_CARD_TYPE,
-        start: this.state.startSearch > MAX_SEARCH_NUMBER ? 0 :  parseInt(this.state.startSearch) + CARDS_NUMBERS_PER_SEARCH -1
+        start: this.config.startSearch
       });
       return false;
     }
     if(this.state.gettingError && this.state.searchAttempts > SEARCH_ATTEMPTS_WHEN_ERROR) {
-      this.currentState.connector[this.accountId].loggedInd = false;
+      this.currentState.connector[this.id].loggedInd = false;
     }
     return true;
   }

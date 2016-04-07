@@ -36,6 +36,14 @@ export default (sequelize, DataTypes) => {
     isActive: {
       type: DataTypes.BOOLEAN,
       field: 'is_active'
+    },
+    startSearch: {
+      type: DataTypes.INTEGER,
+      field: 'start_search'
+    },
+    endSearch: {
+      type: DataTypes.INTEGER,
+      field: 'end_search'
     }
   }, {
     classMethods: {

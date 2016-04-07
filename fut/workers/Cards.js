@@ -5,8 +5,8 @@ import moment from 'moment';
 
 
 let storeCurrentValue;
-const GET_EARLIER_AUCTIONS_TIME = 24 * 60 * 60 * 10; // 10 dni
-const UPDATE_TRADE_CARDS_INTERVAL = 5;
+const OLD_CARDS_REMOVE_INTERVAL = 60; // minutes
+const UPDATE_TRADE_CARDS_INTERVAL = 60;
 class _Cards extends State {
   constructor(config, store) {
     super('cards');
@@ -53,7 +53,7 @@ class _Cards extends State {
   updateCards() {
 
     if(!this.state || (!this.state.getted && !this.state.getting)) {
-      this.actions.getAuctions(moment().subtract(GET_EARLIER_AUCTIONS_TIME, 's').toDate());
+      this.actions.getAuctions(moment().subtract(OLD_CARDS_REMOVE_INTERVAL, 'minute').toDate());
       return false;
     }
     if(this.state.getted && this.state.auctions != false && this.state.firstGroupped == false) {

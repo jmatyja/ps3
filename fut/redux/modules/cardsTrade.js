@@ -22,10 +22,11 @@ export default function cardsTrade(state = initialState, action = {}) {
       state[action.id] = {
         ...state[action.id],
         searching: false,
-        cards: JSON.parse(action.result),
+        cards: action.result,
         lastSearch: new Date(),
         searchAttempts: 0,
-        searchingError: null
+        searchingError: null,
+        startSearch: action.startSearch
       };
       return state;
     case SEARCH_FAIL:
@@ -35,7 +36,7 @@ export default function cardsTrade(state = initialState, action = {}) {
         searchingError: action.error,
         lastSearch: new Date(),
         startSearch: 0,
-        searchAttempts: state[action.id].searchAttempts +1
+        searchAttempts: state[action.id].searchAttempts ? ++ state[action.id].searchAttempts: 1
       };
       return state;
     case ADD_AUCTIONS:

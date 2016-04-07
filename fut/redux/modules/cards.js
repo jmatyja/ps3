@@ -7,7 +7,7 @@ const GET_FAIL = 'cards/GET_FAIL';
 const SET_TRADING_CARDS = 'cards/SET_TRADING_CARDS';
 const UPDATE_TRADING_CARDS = 'cards/UPDATE_TRADING_CARDS';
 const SET_AUCTIONS = 'cards/SET_AUCTIONS';
-const OLD_CARDS_REMOVE_INTERVAL = 1; // minutes
+const OLD_CARDS_REMOVE_INTERVAL = 60; // minutes
 const initialState = {
   firstGroupped: false,
   auctions: {},
@@ -110,8 +110,10 @@ function groupTradingCards(auctions) {
     R.map(R.values),
     R.map(combine)
     );
-
-  return process(auctions);
+  let ret = process(auctions);
+ // R.forEach(item => console.log(item), ret);
+  return ret;
+  //return process(auctions);
 }
 function setAuctionsFromMarket(newAuctions, currentAuctions) {
   if(newAuctions.length == 0) {
@@ -146,7 +148,6 @@ function setAuctionsFromDb(dbAuctions) {
 }
 
 function removeOldAuctions(auctions) {
-
   const process = R.pipe(
     R.values,
     R.reduce((acc, auction) => {
@@ -156,5 +157,6 @@ function removeOldAuctions(auctions) {
       return acc;
     }, auctions)
   );
+  console.log(Object.keys(auctions).length);
   return process(auctions);
 }

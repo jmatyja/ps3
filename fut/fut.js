@@ -16,6 +16,7 @@ const mysqlClient = new MysqlDbClient();
 const store = createStore(client, mysqlClient);
 
 const runWorker = function(accountConfig, store) {
+
   switch(accountConfig.type) {
     case TYPE_CARDS_INFO:
       new CardsInfo(accountConfig, store).runTimer();
