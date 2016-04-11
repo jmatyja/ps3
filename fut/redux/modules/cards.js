@@ -93,11 +93,14 @@ export function setAuctions(auctions) {
 
 function groupTradingCards(auctions) {
   const combine = (entry) => {
-    return R.reduce((acc, card) => {
-      acc.prices.push({buyNow: card[0].buyNow, count: card.length});
+    return R.reduce((acc, cards) => {
+      acc.prices.push({buyNow: R.head(cards).buyNow, count: cards.length});
+      let cardsWithBid = R.filter(card => card.currentBid > 0, cards).length;
       return {
         ...acc,
-        assetId: card[0].assetId
+        assetId: R.head(cards).assetId,
+        allCount: acc.allCount? acc.allCount + cards.length: cards.length,
+        cardsWithBid: acc.cardsWithBid ? acc.cardsWithBid + cardsWithBid: cardsWithBid
       };
     }, {assetId: false, prices: []}, entry);
   };
@@ -111,7 +114,7 @@ function groupTradingCards(auctions) {
     R.map(combine)
     );
   let ret = process(auctions);
- // R.forEach(item => console.log(item), ret);
+  //R.forEach(item => console.log(item), ret);
   return ret;
   //return process(auctions);
 }
@@ -124,7 +127,8 @@ function setAuctionsFromMarket(newAuctions, currentAuctions) {
       assetId: auction.itemData.assetId,
       buyNow: auction.buyNowPrice,
       addDate: new Date(),
-      tradeId: auction.tradeId
+      tradeId: auction.tradeId,
+      currentBid: auction.currentBid
     };
     return acc;
   };
@@ -139,7 +143,8 @@ function setAuctionsFromDb(dbAuctions) {
       assetId: auction.assetId,
       buyNow: auction.buyNow,
       addDate: auction.addDate,
-      tradeId: auction.tradeId
+      tradeId: auction.tradeId,
+      currentBid: auction.currentBid
     };
     return acc;
   };

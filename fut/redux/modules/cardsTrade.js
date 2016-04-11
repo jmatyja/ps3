@@ -7,6 +7,7 @@ const GET_CARDS_FAIL = 'cards-trade/GET_CARDS_FAIL';
 const ADD_AUCTIONS = 'cards-trade/ADD_AUCTIONS';
 const ADD_AUCTIONS_SUCCESS = 'cards-trade/ADD_AUCTIONS_SUCCESS';
 const ADD_AUCTIONS_FAIL = 'cards-trade/ADD_AUCTIONS_FAIL';
+const CHECK_CARDS_TO_SEARCH = 'cards-trads/CHECK_CARDS_TO_SEARCH';
 
 const initialState = {};
 
@@ -15,7 +16,8 @@ export default function cardsTrade(state = initialState, action = {}) {
     case SEARCH:
       state[action.id] = {
         ...state[action.id],
-        searching: true
+        searching: true,
+        cardsSearchedAndNotProceeded: false
       };
       return state;
     case SEARCH_SUCCESS:
@@ -26,7 +28,8 @@ export default function cardsTrade(state = initialState, action = {}) {
         lastSearch: new Date(),
         searchAttempts: 0,
         searchingError: null,
-        startSearch: action.startSearch
+        startSearch: action.startSearch,
+        cardsSearchedAndNotProceeded: true
       };
       return state;
     case SEARCH_FAIL:
@@ -36,7 +39,8 @@ export default function cardsTrade(state = initialState, action = {}) {
         searchingError: action.error,
         lastSearch: new Date(),
         startSearch: 0,
-        searchAttempts: state[action.id].searchAttempts ? ++ state[action.id].searchAttempts: 1
+        searchAttempts: state[action.id].searchAttempts ? ++ state[action.id].searchAttempts: 1,
+        cardsSearchedAndNotProceeded: false
       };
       return state;
     case ADD_AUCTIONS:
@@ -81,4 +85,13 @@ export function addAuctions(config, data) {
     mysqlPromise: (client) => client.addAuctions(config, data),
     id: config.id
   };
+}
+
+export function checkForCardsToBuy(id, cards, tradingCards) {
+  return {
+    type: CHECK_CARDS_TO_SEARCH,
+    id: id,
+    cards: cards,
+    tradingCards: tradingCards
+  }
 }

@@ -10,7 +10,6 @@ const CARDS_NUMBERS_PER_SEARCH = 50;
 const SEARCH_CARD_LEV = 'gold';
 const SEARCH_CARD_TYPE = 'player';
 const SEARCH_ATTEMPTS_WHEN_ERROR = 3;
-const MAX_SEARCH_NUMBER = 5000;
 
 let storeCurrentValue = {};
 
@@ -21,9 +20,19 @@ class _CardsTrade extends MarketLogin {
     this.actions = bindActionCreators({...cardsTradeActions, setAuctions}, this.store.dispatch);
   }
 
+  get tradingCards() {
+    if(this.currentState['cards']) {
+      return this.currentState['cards'].tradingCards;
+    } else {
+      return [];
+    }
+  }
+
   tick() {
 
-    return !this.checkLogin() || !this.checkSearch();
+    return !this.checkLogin()
+      || !this.checkSearch()
+      || !this.checkForCardsToBuy();
   }
 
   handleStoreChange() {
@@ -70,6 +79,12 @@ class _CardsTrade extends MarketLogin {
       this.currentState.connector[this.id].loggedInd = false;
     }
     return true;
+  }
+
+  checkForCardsToBuy() {
+    if(this.state.cards && this.state.cardsSearchedAndNotProceeded) {
+      this.actions.checkForCardsToBuy(this.id, this.state.cards, this.tradingCards)
+    }
   }
 
 }

@@ -60,8 +60,7 @@ class _Cards extends State {
       this.actions.setTradingCards();
       return false;
     }
-    if(this.state.tradingCards
-      && this.state.lastUpdateTradeCards
+    if(this.state.lastUpdateTradeCards
       && moment().isAfter(moment(this.state.lastUpdateTradeCards).add(UPDATE_TRADE_CARDS_INTERVAL, 's'))) {
       this.actions.updateTradingCards(this.state.auctions);
       return false;
