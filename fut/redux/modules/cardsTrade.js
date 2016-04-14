@@ -9,6 +9,8 @@ const ADD_AUCTIONS_SUCCESS = 'cards-trade/ADD_AUCTIONS_SUCCESS';
 const ADD_AUCTIONS_FAIL = 'cards-trade/ADD_AUCTIONS_FAIL';
 const CHECK_CARDS_TO_SEARCH = 'cards-trads/CHECK_CARDS_TO_SEARCH';
 
+const MIN_CARDS_COUNT_TO_TRADE = 50;
+
 const initialState = {};
 
 export default function cardsTrade(state = initialState, action = {}) {
@@ -65,7 +67,15 @@ export default function cardsTrade(state = initialState, action = {}) {
         addingAuctionsError: action.error
       };
       return state;
+    case CHECK_CARDS_TO_SEARCH:
+        state[action.id] = {
+          ...state[action.id],
+          cardsSearchedAndNotProceeded: false,
+          auctionsToWin: action.auctionsToBid
+        };
+        return state;
     default:
+
       return state;
   }
 }
@@ -87,11 +97,25 @@ export function addAuctions(config, data) {
   };
 }
 
-export function checkForCardsToBuy(id, cards, tradingCards) {
+export function checkForCardsToBuy(id, state, tradingCards) {
   return {
     type: CHECK_CARDS_TO_SEARCH,
     id: id,
-    cards: cards,
-    tradingCards: tradingCards
+    state: state,
+    auctionsToBid: checkForAuctionsToBid(state, tradingCards)
   }
+}
+
+function checkForAuctionsToBid(state, tradingCards) {
+  const filterFunction = card => {
+    let tradingCard = tradingCards[card.assetId];
+    if(undefined == tradingCard) {
+      return false;
+    }
+    return tradingCard.allCount > MIN_CARDS_COUNT_TO_TRADE
+  };
+}
+
+function getCardMaxBidPrice(tradingCard) {
+
 }

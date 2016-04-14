@@ -83,10 +83,9 @@ class _CardsTrade extends MarketLogin {
 
   checkForCardsToBuy() {
     if(this.state.cards && this.state.cardsSearchedAndNotProceeded) {
-      this.actions.checkForCardsToBuy(this.id, this.state.cards, this.tradingCards)
+      this.actions.checkForCardsToBuy(this.id, this.state, this.tradingCards)
     }
   }
-
 }
 const CardsTrade = _CardsTrade;
 export default CardsTrade;
