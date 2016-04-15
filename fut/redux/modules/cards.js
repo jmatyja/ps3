@@ -1,5 +1,12 @@
-import R from 'ramda';
-import moment from 'moment';
+
+import {
+  cardMaxBidPrice, 
+  cardsPricesChanges,
+  groupTradingCards,
+  setAuctionsFromMarket,
+  setAuctionsFromDb,
+  removeOldAuctions
+} from '../lib/cardsOperations';
 
 const GET = 'card/GET';
 const GET_SUCCESS = 'cards/GET_SUCCESS';
@@ -7,7 +14,7 @@ const GET_FAIL = 'cards/GET_FAIL';
 const SET_TRADING_CARDS = 'cards/SET_TRADING_CARDS';
 const UPDATE_TRADING_CARDS = 'cards/UPDATE_TRADING_CARDS';
 const SET_AUCTIONS = 'cards/SET_AUCTIONS';
-const OLD_CARDS_REMOVE_INTERVAL = 60; // minutes
+
 const initialState = {
   firstGroupped: false,
   auctions: {},
@@ -90,78 +97,3 @@ export function setAuctions(auctions) {
   };
 }
 
-
-function groupTradingCards(auctions) {
-  const combine = (entry) => {
-    return R.reduce((acc, cards) => {
-      acc.prices.push({buyNow: R.head(cards).buyNow, count: cards.length});
-      let cardsWithBid = R.filter(card => card.currentBid > 0, cards).length;
-      return {
-        ...acc,
-        assetId: R.head(cards).assetId,
-        allCount: acc.allCount? acc.allCount + cards.length: cards.length,
-        cardsWithBid: acc.cardsWithBid ? acc.cardsWithBid + cardsWithBid: cardsWithBid
-      };
-    }, {assetId: false, prices: []}, entry);
-  };
-
-  const process = R.pipe(
-    R.values,
-    R.groupBy(R.prop('assetId')),
-    R.values,
-    R.map(R.groupBy(R.prop('buyNow'))),
-    R.map(R.values),
-    R.map(combine)
-    );
-  let ret = process(auctions);
-  //R.forEach(item => console.log(item), ret);
-  return ret;
-  //return process(auctions);
-}
-function setAuctionsFromMarket(newAuctions, currentAuctions) {
-  if(newAuctions.length == 0) {
-    return currentAuctions;
-  }
-  const setAuction = (acc, auction) => {
-    acc[auction.tradeId] = {
-      assetId: auction.itemData.assetId,
-      buyNow: auction.buyNowPrice,
-      addDate: new Date(),
-      tradeId: auction.tradeId,
-      currentBid: auction.currentBid
-    };
-    return acc;
-  };
-  return R.reduce(setAuction, currentAuctions, newAuctions);
-}
-function setAuctionsFromDb(dbAuctions) {
-  if(dbAuctions.length == 0) {
-    return false;
-  }
-  const setAuction = (acc, auction ) => {
-    acc[auction.tradeId] = {
-      assetId: auction.assetId,
-      buyNow: auction.buyNow,
-      addDate: auction.addDate,
-      tradeId: auction.tradeId,
-      currentBid: auction.currentBid
-    };
-    return acc;
-  };
-
-  return R.reduce(setAuction, {}, dbAuctions);
-}
-
-function removeOldAuctions(auctions) {
-  const process = R.pipe(
-    R.values,
-    R.reduce((acc, auction) => {
-      if(moment().isAfter(moment(auction.addDate).add(OLD_CARDS_REMOVE_INTERVAL, 'minute'))) {
-        delete acc[auction.tradeId];
-      }
-      return acc;
-    }, auctions)
-  );
-  console.log(Object.keys(auctions).length);
-  return process(auctions);
-}
