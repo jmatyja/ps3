@@ -46,7 +46,7 @@ export function cardMaxBidPrice(buyNowPrice) {
   const maxBuyPrice = buyNowWithoutTax - MIN_PROFIT;
   //TODO:
   //sprawdzić dla wartości buyNow  10250
-  R.until(R.lte(R.__, maxBuyPrice), R.subtract(R.__, getPriceStep(buyNowPrice)))(buyNowPrice)
+  R.until(R.lte(R.__, maxBuyPrice), price => price - getPriceStep(price) )(buyNowPrice);
 }
 
 export function cardMaxBuyNowPrice(tradingCard) {
