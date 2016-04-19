@@ -1,6 +1,7 @@
-import {checkForAuctionsToBid,
+import {
+  checkForAuctionsToBid,
   cardsPricesNotChangedToLower
-} from '../lib/cardsOperations';
+} from '../../lib/cardsOperations';
 
 const SEARCH = 'cards-trade/SEARCH';
 const SEARCH_SUCCESS = 'cards-trade/SEARCH_SUCCESS';
@@ -98,11 +99,18 @@ export function addAuctions(config, data) {
   };
 }
 // dodać obsługę cart które już są bidowane w innych kontach
-export function checkForCardsToBuy(id, auctions, tradingCards) {
+export function checkForCardsToBuy(id, auctions, tradingCards, inBidCards) {
   return {
     type: AUCTIONS_TO_BID,
     id: id,
-    auctionsToBid: checkForAuctionsToBid(auctions, tradingCards, canBidCard)
+    auctionsToBid: checkForAuctionsToBid(
+      auctions,
+      tradingCards,
+      R.either(
+        canBidCard,
+        auction => !R.find(card => card.tradeId == auction.tradeId, inBidCards)
+      )
+    )
   }
 }
 

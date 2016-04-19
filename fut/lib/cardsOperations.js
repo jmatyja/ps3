@@ -23,7 +23,7 @@ export function getPriceStep(price, direction) {
           return 100;
         default:
           return 50;
-      };
+      }
           break;
     case 'higher':
     default:
@@ -38,7 +38,7 @@ export function getPriceStep(price, direction) {
           return 100;
         default:
           return 50;
-      };
+      }
   }
 
 
@@ -56,7 +56,7 @@ export function checkForAuctionsToBid(auctions, tradingCards, canBidCard) {
     const cardPossibleBid = auction.currentBid + getPriceStep(auction.currentBid, 'higher');
 
     return  tradingCard.allCount > MIN_CARDS_COUNT_TO_TRADE
-      && canBidCard(tradingCard, maxBidPrice)
+      && canBidCard(auction, maxBidPrice)
       && maxBidPrice <= cardPossibleBid
       && auction.expires <= MAX_EXPIRES;
   };
@@ -82,7 +82,8 @@ export function cardMaxBuyNowPrice(tradingCard) {
 export function cardsPricesNotChangedToLower(_priceChangeToLowerInterval) {
   let cardsPricesChanges = {};
   const priceChangeToLowerInterval = _priceChangeToLowerInterval; //seconds
-  return (assetId, maxBidPrice) => {
+  return (auction, maxBidPrice) => {
+    let assetId = auction.itemData.assetId;
     const lastCardPrice = cardsPricesChanges[assetId];
 
     if(undefined == lastCardPrice || maxBidPrice > lastCardPrice.maxBidPrice ) {
