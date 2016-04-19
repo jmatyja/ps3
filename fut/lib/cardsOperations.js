@@ -4,49 +4,69 @@ import moment from 'moment';
 const MIN_BUY_NOW_COUNT = 5;
 const MAX_BUY_NOW_PRICES_COUNT = 3;
 const OLD_CARDS_REMOVE_INTERVAL = 60; //minutes
-const PRICE_CHANGE_TO_LOWER_INTERVAL = 60; //minutes
 const MIN_CARDS_COUNT_TO_TRADE = 50;
 const MIN_PROFIT = 200;
-const EA_TAX = 5;
-
-function getPriceStep(price) {
-  switch(true) {
-    case (price >= 100000):
-      return 1000;
-    case (price >= 50000):
-      return 500;
-    case (price >= 10000):
-      return 250;
-    case (price >= 1000):
-      return 100;
+const EA_TAX = 0.05;
+const MAX_EXPIRES = 60;
+export function getPriceStep(price, direction) {
+  switch(direction)
+  {
+    case 'lower':
+      switch(true) {
+        case (price > 100000):
+          return 1000;
+        case (price > 50000):
+          return 500;
+        case (price > 10000):
+          return 250;
+        case (price > 1000):
+          return 100;
+        default:
+          return 50;
+      };
+          break;
+    case 'higher':
     default:
-      return 50;
+      switch(true) {
+        case (price >= 100000):
+          return 1000;
+        case (price >= 50000):
+          return 500;
+        case (price >= 10000):
+          return 250;
+        case (price >= 1000):
+          return 100;
+        default:
+          return 50;
+      };
   }
-  
+
+
 }
-export function checkForAuctionsToBid(state, tradingCards) {
-  const filterFunction = card => {
-    const tradingCard = tradingCards[card.assetId];
+export function checkForAuctionsToBid(auctions, tradingCards, canBidCard) {
+  const filterFunction = auction => {
+    const tradingCard = tradingCards[auction.itemData.assetId];
+    if(undefined == tradingCard) {
+      return false;
+    }
     const maxBidPrice = R.pipe(
       cardMaxBuyNowPrice,
       cardMaxBidPrice
       )(tradingCard);
-    const cardPossibleBid = card.currentBid + getPriceStep(card.currentBid);
-    if(undefined == tradingCard) {
-      return false;
-    }
+    const cardPossibleBid = auction.currentBid + getPriceStep(auction.currentBid, 'higher');
+
     return  tradingCard.allCount > MIN_CARDS_COUNT_TO_TRADE
-      && cardsPricesNotChangedToLower(tradingCard, maxBidPrice)
-      && maxBidPrice <= cardPossibleBid;
+      && canBidCard(tradingCard, maxBidPrice)
+      && maxBidPrice <= cardPossibleBid
+      && auction.expires <= MAX_EXPIRES;
   };
+  return R.filter(filterFunction, auctions);
 }
 
 export function cardMaxBidPrice(buyNowPrice) {
   const buyNowWithoutTax = buyNowPrice * (1 - EA_TAX);
   const maxBuyPrice = buyNowWithoutTax - MIN_PROFIT;
-  //TODO:
-  //sprawdzić dla wartości buyNow  10250
-  R.until(R.lte(R.__, maxBuyPrice), price => price - getPriceStep(price) )(buyNowPrice);
+  return R.until(R.lte(R.__, maxBuyPrice), price => price - getPriceStep(price, 'lower') )(buyNowPrice);
 }
 
 export function cardMaxBuyNowPrice(tradingCard) {
@@ -59,33 +79,35 @@ export function cardMaxBuyNowPrice(tradingCard) {
 
 }
 
-export function cardsPricesNotChangedToLower(tradingCard, maxBidPrice) {
+export function cardsPricesNotChangedToLower(_priceChangeToLowerInterval) {
   let cardsPricesChanges = {};
-  return (tradingCard, maxBidPricemaxBidValue) => {
-    const lastCardPrice = cardsPricesChanges[tradingCard.assetId];
-    
+  const priceChangeToLowerInterval = _priceChangeToLowerInterval; //seconds
+  return (assetId, maxBidPrice) => {
+    const lastCardPrice = cardsPricesChanges[assetId];
+
     if(undefined == lastCardPrice || maxBidPrice > lastCardPrice.maxBidPrice ) {
-      cardsPricesChanges[tradingCard.assetId] = {
+      cardsPricesChanges[assetId] = {
         maxBidPrice : maxBidPrice,
         isLower: false,
         dropPriceTime: false
       };
       return true;
-   
+
     } else if(lastCardPrice.maxBidPrice == maxBidPrice   ) {
       if(false ==  lastCardPrice.isLower) {
         return true;
-      } else if(true == lastCardPrice.isLower && moment().isAfter(moment(lastCardPrice.dropPriceTime).add(PRICE_CHANGE_TO_LOWER_INTERVAL, 'minute'))) {
-        cardsPricesChanges[tradingCard.assetId] = {
+      } else if(true == lastCardPrice.isLower && moment().isAfter(moment(lastCardPrice.dropPriceTime).add(priceChangeToLowerInterval, 'second'))) {
+        cardsPricesChanges[assetId] = {
           maxBidPrice: maxBidPrice,
           isLower: false,
           dropPriceTime: false
         };
+        return true;
       } else {
         return false;
       }
     } else if(maxBidPrice < lastCardPrice.maxBidPrice ) {
-      cardsPricesChanges[tradingCard.assetId] = {
+      cardsPricesChanges[assetId] = {
         maxBidPrice: maxBidPrice,
         isLower: true,
         dropPriceTime: new Date()
@@ -117,13 +139,10 @@ export function groupTradingCards(auctions) {
     R.map(R.values),
     R.map(combine)
     );
-  let ret = process(auctions);
-  //R.forEach(item => console.log(item), ret);
-  return ret;
-  //return process(auctions);
+  return process(auctions);
 }
 
-export function setAuctionsFromMarket(newAuctions, currentAuctions) {
+export function getAuctionsFromMarket(newAuctions, currentAuctions) {
   if(newAuctions.length == 0) {
     return currentAuctions;
   }
@@ -140,7 +159,7 @@ export function setAuctionsFromMarket(newAuctions, currentAuctions) {
   return R.reduce(setAuction, currentAuctions, newAuctions);
 }
 
-export function setAuctionsFromDb(dbAuctions) {
+export function getAuctionsFromDb(dbAuctions) {
   if(dbAuctions.length == 0) {
     return false;
   }

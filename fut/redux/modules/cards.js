@@ -1,10 +1,10 @@
 
 import {
-  cardMaxBidPrice, 
+  cardMaxBidPrice,
   cardsPricesChanges,
   groupTradingCards,
-  setAuctionsFromMarket,
-  setAuctionsFromDb,
+  getAuctionsFromMarket,
+  getAuctionsFromDb,
   removeOldAuctions
 } from '../lib/cardsOperations';
 
@@ -35,7 +35,7 @@ export default function cards(state = initialState, action = {}) {
         ...state,
         getting: false,
         getted: true,
-        auctions: setAuctionsFromDb(action.result)
+        auctions: getAuctionsFromDb(action.result)
       };
     case GET_FAIL:
       return {
@@ -63,7 +63,7 @@ export default function cards(state = initialState, action = {}) {
     case SET_AUCTIONS:
       return {
         ...state,
-        auctions: setAuctionsFromMarket(action.auctions, state.auctions)
+        auctions: getAuctionsFromMarket(action.auctions, state.auctions)
       };
     default:
       return state;

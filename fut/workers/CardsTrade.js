@@ -38,7 +38,7 @@ class _CardsTrade extends MarketLogin {
   handleStoreChange() {
 
     this.state = this.store.getState();
-    if(!this.state || !this.state.cards){
+    if(!this.state || !this.state.auctions){
       return;
     }
 
@@ -46,13 +46,13 @@ class _CardsTrade extends MarketLogin {
     storeCurrentValue[this.id] = this.state;
     //first search
 
-    if(this.state.cards && (!previousValue || !previousValue.cards)) {
-      this.actions.setAuctions(this.state.cards.auctionInfo);
-      this.actions.addAuctions(this.config, this.state.cards);
+    if(this.state.auctions && (!previousValue || !previousValue.auctions)) {
+      this.actions.setAuctions(this.state.auctions.auctionInfo);
+      this.actions.addAuctions(this.config, this.state.auctions);
     }
-    if(previousValue && previousValue.cards && previousValue.lastSearch != storeCurrentValue[this.id].lastSearch) {
-      this.actions.setAuctions(this.state.cards.auctionInfo);
-      this.actions.addAuctions(this.config, this.state.cards);
+    if(previousValue && previousValue.auctions && previousValue.lastSearch != storeCurrentValue[this.id].lastSearch) {
+      this.actions.setAuctions(this.state.auctions.auctionInfo);
+      this.actions.addAuctions(this.config, this.state.auctions);
     }
   }
 
@@ -82,8 +82,8 @@ class _CardsTrade extends MarketLogin {
   }
 
   checkForCardsToBuy() {
-    if(this.state.cards && this.state.cardsSearchedAndNotProceeded) {
-      this.actions.checkForCardsToBuy(this.id, this.state, this.tradingCards)
+    if(this.state.auctionsToWin && this.state.cardsSearchedAndNotProceeded) {
+      this.actions.checkForCardsToBuy(this.id, this.state.auctions.auctionInfo, this.tradingCards)
     }
   }
 }

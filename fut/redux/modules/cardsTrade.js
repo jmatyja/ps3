@@ -1,4 +1,6 @@
-import {checkForAuctionsToBid} from '../lib/cardsOperations';
+import {checkForAuctionsToBid,
+  cardsPricesNotChangedToLower
+} from '../lib/cardsOperations';
 
 const SEARCH = 'cards-trade/SEARCH';
 const SEARCH_SUCCESS = 'cards-trade/SEARCH_SUCCESS';
@@ -9,8 +11,8 @@ const GET_CARDS_FAIL = 'cards-trade/GET_CARDS_FAIL';
 const ADD_AUCTIONS = 'cards-trade/ADD_AUCTIONS';
 const ADD_AUCTIONS_SUCCESS = 'cards-trade/ADD_AUCTIONS_SUCCESS';
 const ADD_AUCTIONS_FAIL = 'cards-trade/ADD_AUCTIONS_FAIL';
-const CHECK_CARDS_TO_SEARCH = 'cards-trads/CHECK_CARDS_TO_SEARCH';
-
+const AUCTIONS_TO_BID = 'cards-trads/AUCTIONS_TO_BID';
+const canBidCard = cardsPricesNotChangedToLower(60*60);
 const initialState = {};
 
 export default function cardsTrade(state = initialState, action = {}) {
@@ -26,7 +28,7 @@ export default function cardsTrade(state = initialState, action = {}) {
       state[action.id] = {
         ...state[action.id],
         searching: false,
-        cards: action.result,
+        auctions: action.result,
         lastSearch: new Date(),
         searchAttempts: 0,
         searchingError: null,
@@ -67,11 +69,11 @@ export default function cardsTrade(state = initialState, action = {}) {
         addingAuctionsError: action.error
       };
       return state;
-    case CHECK_CARDS_TO_SEARCH:
+    case AUCTIONS_TO_BID:
       state[action.id] = {
         ...state[action.id],
         cardsSearchedAndNotProceeded: false,
-        auctionsToWin: action.auctionsToBid
+        auctionsToBid: action.auctionsToBid
       };
       return state;
     default:
@@ -95,13 +97,12 @@ export function addAuctions(config, data) {
     id: config.id
   };
 }
-
-export function checkForCardsToBuy(id, state, tradingCards) {
+// dodać obsługę cart które już są bidowane w innych kontach
+export function checkForCardsToBuy(id, auctions, tradingCards) {
   return {
-    type: CHECK_CARDS_TO_SEARCH,
+    type: AUCTIONS_TO_BID,
     id: id,
-    state: state,
-    auctionsToBid: checkForAuctionsToBid(state, tradingCards)
+    auctionsToBid: checkForAuctionsToBid(auctions, tradingCards, canBidCard)
   }
 }
 
