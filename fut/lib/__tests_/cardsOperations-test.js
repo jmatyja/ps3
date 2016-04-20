@@ -1,15 +1,15 @@
 import {expect} from 'chai';
-import {getPriceStep,
-  getAuctionsFromDb,
-  groupTradingCards,
+import {
+  getPriceStep,
   cardMaxBidPrice,
   cardMaxBuyNowPrice,
-  cardsPricesNotChangedToLower} from '../cardsOperations';
+  cardsPricesNotChangedToLower,
+  checkForAuctionsToBid
+} from '../cardsOperations';
 import R from 'ramda';
 
 const cardsPrices = cardsPricesNotChangedToLower(1);
-cardsPrices(1, 1000);
-cardsPrices(1, 900);
+
 describe('getPriceStep', () => {
   it('it should return 1000 when price above then 100000', () => {
     expect(getPriceStep(110000)).to.equal(1000);
@@ -44,7 +44,7 @@ describe('cardMaxBuyNowPrice', () => {
     expect(cardMaxBuyNowPrice(tradingCard)).to.equal(tradingCard.prices[2].buyNow);
   });
   it('should return buy now price that count of cards bigger or equal then 5', () => {
-    let tradingCard = {
+    const tradingCard = {
       assetId: 0,
       allCount: 101,
       cadsWithBid: 0,
@@ -61,25 +61,59 @@ describe('cardMaxBuyNowPrice', () => {
 
 describe('cardsPricesNotChangedToLower', () => {
   it('should return true if trading card first time checked', () => {
-    expect(cardsPrices(0, 1000)).to.be.true;
+    expect(cardsPrices({itemData:{assetId: 0}}, 1000)).to.be.true;
   });
   it('should return false if trading card second time is lower', () => {
-    expect(cardsPrices(0, 900)).to.be.false;
+    expect(cardsPrices({itemData:{assetId: 0}}, 900)).to.be.false;
   });
 });
 describe('cardsPricesnotChangedToLower interval tests', () => {
-    it('should return false before price changed to lower interval', (done) => {
-      setTimeout(function(){
+  cardsPrices({itemData:{assetId: 1}}, 1000);
+  cardsPrices({itemData:{assetId: 1}}, 900);
+  it('should return false before price changed to lower interval', done => {
+    setTimeout(function(){
 
-        expect(cardsPrices(1, 900)).to.be.false;
-        done();
-      }, 500);
-    });
-    it('should return true after price changed to lower interval', (done) => {
-      setTimeout(function(){
-        expect(cardsPrices(1, 900)).to.be.true;
-        done();
-      }, 1500);
-    });
+      expect(cardsPrices({itemData:{assetId: 1}}, 900)).to.be.false;
+      done();
+    }, 500);
+  });
+  it('should return true after price changed to lower interval', done => {
+    setTimeout(function(){
+      expect(cardsPrices({itemData:{assetId: 1}}, 900)).to.be.true;
+      done();
+    }, 1500);
+  });
 });
-
+describe('checkForAuctionsToBid', () => {
+  const auctions = [
+    {
+      tradeId: 1, 
+      currentBid: 0, 
+      startingBid: 500, 
+      buyNowPrice: 1100, 
+      expires: 50,
+      tradeState: 'active',
+      itemData:{assetId: 1, timestamp: 1457995870}
+    }
+  ];
+  const tradingCards = {1:
+    {
+      assetId: 1,
+      allCount: 101,
+      cadsWithBid: 0,
+      prices: [
+        {buyNow: 1000, count: 4},
+        {buyNow: 1100, count: 5},
+        {buyNow: 1200, count: 3},
+        {buyNow: 1300, count: 2}
+      ]
+    }
+  };
+  it('should have length one for auction next bid 500', () => {
+    expect(checkForAuctionsToBid(auctions, tradingCards, cardsPrices)).to.have.lengthOf(1);
+  });
+  it('should have length 0 for auction next bid 1000', () => {
+    auctions[0] = {...auctions[0], currentBid: 950};
+    expect(checkForAuctionsToBid(auctions, tradingCards, cardsPrices)).to.have.lengthOf(0);
+  });
+});

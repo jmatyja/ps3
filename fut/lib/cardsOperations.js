@@ -24,7 +24,7 @@ export function getPriceStep(price, direction) {
         default:
           return 50;
       }
-          break;
+      break;
     case 'higher':
     default:
       switch(true) {
@@ -43,9 +43,17 @@ export function getPriceStep(price, direction) {
 
 
 }
+export function auctionPossibleBid(auction) {
+  if(auction.currentBid == 0) {
+    return auction.startingBid;
+  } else {
+    return auction.currentBid + getPriceStep(auction.currentBid, 'higher');
+  }
+}
 export function checkForAuctionsToBid(auctions, tradingCards, canBidCard) {
   const filterFunction = auction => {
     const tradingCard = tradingCards[auction.itemData.assetId];
+    
     if(undefined == tradingCard) {
       return false;
     }
@@ -53,14 +61,28 @@ export function checkForAuctionsToBid(auctions, tradingCards, canBidCard) {
       cardMaxBuyNowPrice,
       cardMaxBidPrice
       )(tradingCard);
-    const cardPossibleBid = auction.currentBid + getPriceStep(auction.currentBid, 'higher');
-
-    return  tradingCard.allCount > MIN_CARDS_COUNT_TO_TRADE
-      && canBidCard(auction, maxBidPrice)
-      && maxBidPrice <= cardPossibleBid
-      && auction.expires <= MAX_EXPIRES;
+      
+    return canBidCard(auction, cardMaxBuyNowPrice(tradingCard))
+      && tradingCard.allCount > MIN_CARDS_COUNT_TO_TRADE
+      && maxBidPrice >= auctionPossibleBid(auction)
+      && auction.expires <= MAX_EXPIRES
+      && auction.tradeState == "active";
   };
-  return R.filter(filterFunction, auctions);
+  return R.pipe(
+        R.filter(filterFunction),
+        R.map(auction => {
+          return {
+            tradeId: auction.tradeId,
+            assetId: auction.itemData.assetId,
+            nextBidValue: auctionPossibleBid(auction),
+            buyNowPrice: auction.buyNowPrice,
+            currentBid: auction.currentBid,
+            startingBid: auction.startingBid,
+            expires: auction.expires,
+            timestamp: auction.itemData.timestamp
+          };
+        })
+        )(auctions);
 }
 
 export function cardMaxBidPrice(buyNowPrice) {
@@ -76,7 +98,6 @@ export function cardMaxBuyNowPrice(tradingCard) {
       R.either(R.find(R.propSatisfies(count => count >= MIN_BUY_NOW_COUNT, 'count')), R.last),
       R.prop('buyNow')
   )(tradingCard);
-
 }
 
 export function cardsPricesNotChangedToLower(_priceChangeToLowerInterval) {

@@ -2,6 +2,7 @@ import {
   checkForAuctionsToBid,
   cardsPricesNotChangedToLower
 } from '../../lib/cardsOperations';
+import R from 'ramda';
 
 const SEARCH = 'cards-trade/SEARCH';
 const SEARCH_SUCCESS = 'cards-trade/SEARCH_SUCCESS';
@@ -98,7 +99,7 @@ export function addAuctions(config, data) {
     id: config.id
   };
 }
-// dodać obsługę cart które już są bidowane w innych kontach
+
 export function checkForCardsToBuy(id, auctions, tradingCards, inBidCards) {
   return {
     type: AUCTIONS_TO_BID,
@@ -106,12 +107,12 @@ export function checkForCardsToBuy(id, auctions, tradingCards, inBidCards) {
     auctionsToBid: checkForAuctionsToBid(
       auctions,
       tradingCards,
-      R.either(
+      R.both(
         canBidCard,
         auction => !R.find(card => card.tradeId == auction.tradeId, inBidCards)
       )
     )
-  }
+  };
 }
 
 

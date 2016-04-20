@@ -83,7 +83,7 @@ class _CardsTrade extends MarketLogin {
 
   checkForCardsToBuy() {
     if(this.state.auctionsToWin && this.state.cardsSearchedAndNotProceeded) {
-      this.actions.checkForCardsToBuy(this.id, this.state.auctions.auctionInfo, this.tradingCards)
+      this.actions.checkForCardsToBuy(this.id, this.state.auctions.auctionInfo, this.tradingCards, [])
     }
   }
 }
