@@ -21,6 +21,7 @@ class _MarketLogin extends State {
   checkLogin() {
 
     if(!this.currentState || !this.currentState.connector || !this.currentState.connector[this.id]){
+      console.log('firstlogin')
       this.connectorActions.login(this.config);
     }
     if( !this.currentState.connector || !this.currentState.connector[this.id] || this.currentState.connector[this.id].loggingIn){
@@ -31,7 +32,9 @@ class _MarketLogin extends State {
       if(this.currentState.connector[this.id].lastAttempt && moment().isAfter(moment(this.currentState.connector[this.id].lastAttempt).add(LOGIN_ATTEMPT_INTERVAL, 's'))){
         return false;
       }
-      this.connectorActions.login(this.config);
+      console.log(this.currentState.connector[this.id].lastAttempt);
+      console.log(moment(this.currentState.connector[this.id].lastAttempt).add(LOGIN_ATTEMPT_INTERVAL, 'second'));
+      //this.connectorActions.login(this.config);
       return false;
     }
     if(this.currentState.connector[this.id].loggedInd && !this.currentState.connector[this.id].marketDataIsSet) {

@@ -13,7 +13,8 @@ let sequelize = new Sequelize(config.db.database, config.db.user, config.db.pass
   },
   define: {
     timestamps: false
-  }
+  },
+  logging: false
 });
 let entities = {};
 

@@ -3,6 +3,7 @@ import {
   cardsPricesNotChangedToLower
 } from '../../lib/cardsOperations';
 import R from 'ramda';
+import marketConst from './const/market';
 
 const SEARCH = 'cards-trade/SEARCH';
 const SEARCH_SUCCESS = 'cards-trade/SEARCH_SUCCESS';
@@ -13,9 +14,14 @@ const GET_CARDS_FAIL = 'cards-trade/GET_CARDS_FAIL';
 const ADD_AUCTIONS = 'cards-trade/ADD_AUCTIONS';
 const ADD_AUCTIONS_SUCCESS = 'cards-trade/ADD_AUCTIONS_SUCCESS';
 const ADD_AUCTIONS_FAIL = 'cards-trade/ADD_AUCTIONS_FAIL';
-const AUCTIONS_TO_BID = 'cards-trads/AUCTIONS_TO_BID';
+const AUCTIONS_TO_BID = 'cards-trade/AUCTIONS_TO_BID';
+const SEARCH_BID = 'cards-trade/SEARCH_BID';
+const SEARCH_BID_SUCCESS = 'cards-trade/SEARCH_BID_SUCCESS';
+const SEARCH_BID_FAIL = 'cards-trade/SEARCH_BID_FAIL';
+
 const canBidCard = cardsPricesNotChangedToLower(60*60);
 const initialState = {};
+
 
 export default function cardsTrade(state = initialState, action = {}) {
   switch (action.type) {
@@ -23,7 +29,10 @@ export default function cardsTrade(state = initialState, action = {}) {
       state[action.id] = {
         ...state[action.id],
         searching: true,
-        cardsSearchedAndNotProceeded: false
+        cardsSearchedAndNotProceeded: false,
+        marketState: marketConst.MARKET_STATE_SEARCH,
+        lastBid: state[action.id].lastBid ? state[action.id].lastBid: new Date(),
+        auctionsToBid: []
       };
       return state;
     case SEARCH_SUCCESS:
@@ -35,7 +44,8 @@ export default function cardsTrade(state = initialState, action = {}) {
         searchAttempts: 0,
         searchingError: null,
         startSearch: action.startSearch,
-        cardsSearchedAndNotProceeded: true
+        cardsSearchedAndNotProceeded: true,
+        lastUpdateBidAuctions: new Date()
       };
       return state;
     case SEARCH_FAIL:
@@ -75,7 +85,27 @@ export default function cardsTrade(state = initialState, action = {}) {
       state[action.id] = {
         ...state[action.id],
         cardsSearchedAndNotProceeded: false,
-        auctionsToBid: action.auctionsToBid
+        auctionsToBid: action.auctionsToBid,
+        newAuctionsToBidAdded: true
+      };
+      return state;
+    case SEARCH_BID:
+      state[action.id] = {
+        ...state[action.id],
+        searchingBid: true,
+        lastBid: new Date()
+      };
+      return state;
+    case SEARCH_BID_SUCCESS:
+      state[action.id] = {
+        ...state[action.id],
+        searchingBid: false
+      };
+      return state;
+    case SEARCH_BID_FAIL:
+      state[action.id] = {
+        ...state[action.id],
+        searchingBid: false
       };
       return state;
     default:
@@ -113,6 +143,25 @@ export function checkForCardsToBuy(id, auctions, tradingCards, inBidCards) {
       )
     )
   };
+}
+
+export function searchBid(id, auctionsToBid) {
+  return {
+    types: [SEARCH_BID, SEARCH_BID_SUCCESS, SEARCH_BID_FAIL],
+    id: id,
+    promise: (client) => client.bid(
+      id,
+      R.find(auction => (auction.bidState == "none" || auction.bidState == "outbid") && auction.expires > 3, auctionsToBid)
+    )
+  }
+}
+
+export function updateAuctionsToBid(id, auctionsToBid) {
+  return {
+    type: AUCTIONS_TO_BID,
+    id: id,
+    auctionsToBid: R.filter(auction => auction.expires != '-1', auctionsToBid)
+  }
 }
 
 

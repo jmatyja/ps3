@@ -7,6 +7,8 @@ import moment from 'moment';
 let storeCurrentValue;
 const OLD_CARDS_REMOVE_INTERVAL = 60; // minutes
 const UPDATE_TRADE_CARDS_INTERVAL = 60;
+const UPDATE_IN_BID_CARDS = 60; //seconds
+
 class _Cards extends State {
   constructor(config, store) {
     super('cards');
@@ -30,7 +32,8 @@ class _Cards extends State {
     this.currentState = newState;
   }
   tick() {
-    return !this.updateCards();
+    return !this.updateCards()
+      || !this.updateInBidCards();
   }
 
   handleStoreChange() {
@@ -61,9 +64,16 @@ class _Cards extends State {
       return false;
     }
     if(this.state.lastUpdateTradeCards
-      && moment().isAfter(moment(this.state.lastUpdateTradeCards).add(UPDATE_TRADE_CARDS_INTERVAL, 's'))) {
+      && moment().isAfter(moment(this.state.lastUpdateTradeCards).add(UPDATE_TRADE_CARDS_INTERVAL, 'second'))) {
       this.actions.updateTradingCards(this.state.auctions);
       return false;
+    }
+    return true;
+  }
+
+  updateInBidCards() {
+    if(moment().isAfter(this.state.lastInBidCardsUpdate).add(UPDATE_IN_BID_CARDS, 'second')) {
+      this.actions.updateInBidCards(this.state.inBidCards);
     }
     return true;
   }

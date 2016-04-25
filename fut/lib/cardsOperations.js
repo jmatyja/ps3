@@ -51,9 +51,12 @@ export function auctionPossibleBid(auction) {
   }
 }
 export function checkForAuctionsToBid(auctions, tradingCards, canBidCard) {
+
   const filterFunction = auction => {
-    const tradingCard = tradingCards[auction.itemData.assetId];
-    
+    if(undefined == tradingCards) {
+      return false;
+    }
+    const tradingCard = R.find(card => card.assetId == auction.itemData.assetId, tradingCards);
     if(undefined == tradingCard) {
       return false;
     }
@@ -61,8 +64,9 @@ export function checkForAuctionsToBid(auctions, tradingCards, canBidCard) {
       cardMaxBuyNowPrice,
       cardMaxBidPrice
       )(tradingCard);
-      
-    return canBidCard(auction, cardMaxBuyNowPrice(tradingCard))
+
+    return tradingCard.allCount > MIN_CARDS_COUNT_TO_TRADE
+      && canBidCard(auction, cardMaxBuyNowPrice(tradingCard))
       && tradingCard.allCount > MIN_CARDS_COUNT_TO_TRADE
       && maxBidPrice >= auctionPossibleBid(auction)
       && auction.expires <= MAX_EXPIRES
@@ -79,7 +83,8 @@ export function checkForAuctionsToBid(auctions, tradingCards, canBidCard) {
             currentBid: auction.currentBid,
             startingBid: auction.startingBid,
             expires: auction.expires,
-            timestamp: auction.itemData.timestamp
+            timestamp: auction.itemData.timestamp,
+            bidState: auction.bidState
           };
         })
         )(auctions);
@@ -167,6 +172,9 @@ export function groupTradingCards(auctions) {
 export function getAuctionsFromMarket(newAuctions, currentAuctions) {
   if(newAuctions.length == 0) {
     return currentAuctions;
+  }
+  if(false == currentAuctions){
+    currentAuctions = {};
   }
   const setAuction = (acc, auction) => {
     acc[auction.tradeId] = {

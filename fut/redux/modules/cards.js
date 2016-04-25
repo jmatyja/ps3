@@ -1,12 +1,12 @@
-
 import {
   cardMaxBidPrice,
-  cardsPricesChanges,
   groupTradingCards,
   getAuctionsFromMarket,
   getAuctionsFromDb,
   removeOldAuctions
-} from '../lib/cardsOperations';
+} from '../../lib/cardsOperations';
+import R from 'ramda';
+import moment from 'moment';
 
 const GET = 'card/GET';
 const GET_SUCCESS = 'cards/GET_SUCCESS';
@@ -14,11 +14,16 @@ const GET_FAIL = 'cards/GET_FAIL';
 const SET_TRADING_CARDS = 'cards/SET_TRADING_CARDS';
 const UPDATE_TRADING_CARDS = 'cards/UPDATE_TRADING_CARDS';
 const SET_AUCTIONS = 'cards/SET_AUCTIONS';
+const ADD_IN_BID_CARDS = 'cards/ADD_IN_BID_CARDS';
+const UPDATE_IN_BID_CARDS = 'cards/UPDATE_IN_BID_CARDS';
 
+const REMOVE_IN_BID_CARDS_INTERVAL = 60 * 10;
 const initialState = {
   firstGroupped: false,
   auctions: {},
-  lastUpdateAuctions: new Date()
+  lastUpdateAuctions: new Date(),
+  inBidCards: [],
+  lastInBidCardsUpdate: new Date()
 };
 
 export default function cards(state = initialState, action = {}) {
@@ -65,6 +70,17 @@ export default function cards(state = initialState, action = {}) {
         ...state,
         auctions: getAuctionsFromMarket(action.auctions, state.auctions)
       };
+    case ADD_IN_BID_CARDS:
+      return {
+        ...state,
+        inBidCards: R.concat(state.inBidCards, action.auctions)
+      };
+    case UPDATE_IN_BID_CARDS:
+      return {
+        ...state,
+        inBidCards: action.inBidCards,
+        lastInBidCardsUpdate: new Date()
+      };
     default:
       return state;
   }
@@ -94,6 +110,23 @@ export function setAuctions(auctions) {
   return {
     type: SET_AUCTIONS,
     auctions: auctions
+  };
+}
+
+export function addInBidCards(auctions) {
+  return {
+    type: ADD_IN_BID_CARDS,
+    auctions: auctions
+  };
+}
+
+export function updateInBidCards(inBidCards) {
+  return {
+    type: UPDATE_IN_BID_CARDS,
+    inBidCards: R.filter(
+      card => moment().isAfter(moment(card.timestamp).add(REMOVE_IN_BID_CARDS_INTERVAL, 'second')),
+      inBidCards
+    )
   };
 }
 
